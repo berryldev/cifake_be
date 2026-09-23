@@ -21,9 +21,10 @@ def resolve_model_path() -> str:
 MODEL_PATH = resolve_model_path()
 IMG_SIZE = 96
 _model = None
+_model_error = None
 
 def get_model():
-    global _model
+    global _model, _model_error
     if _model is not None:
         return _model
 
@@ -34,13 +35,18 @@ def get_model():
             print(f"[INFO] Model berhasil dimuat dari: {MODEL_PATH}")
             return _model
         except Exception as e:
+            _model_error = f"{type(e).__name__}: {str(e)}"
             print(f"[ERROR] Gagal memuat model dari {MODEL_PATH}: {e}")
             import traceback
             traceback.print_exc()
             return None
     else:
+        _model_error = f"File not found at {MODEL_PATH}"
         print(f"[WARNING] File model tidak ditemukan di {MODEL_PATH}. Berjalan dalam mode simulasi.")
     return None
+
+def get_model_error():
+    return _model_error
 
 def preprocess_image(image_bytes: bytes, target_size: int = IMG_SIZE) -> np.ndarray:
     try:

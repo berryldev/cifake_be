@@ -4,8 +4,10 @@ from fastapi import FastAPI, File, UploadFile, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 
-from model_loader import predict_image, get_model, MODEL_PATH
+from model_loader import predict_image, get_model, get_model_error, MODEL_PATH
 from gradcam import generate_gradcam_overlay_base64
+
+DEPLOY_VERSION = "v1.0.2"
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
@@ -14,7 +16,7 @@ async def lifespan(app: FastAPI):
 
 app = FastAPI(
     title="CIFAKE Detection API",
-    version="1.0.0",
+    version=DEPLOY_VERSION,
     lifespan=lifespan
 )
 
@@ -44,8 +46,10 @@ def root():
     return {
         "status": "online",
         "service": "CIFAKE AI Image Detection API",
+        "deploy_version": DEPLOY_VERSION,
         "model_loaded": model is not None,
         "model_path": MODEL_PATH,
+        "model_error": get_model_error(),
         "endpoints": {
             "health": "/health",
             "predict": "POST /predict",
@@ -58,8 +62,10 @@ def health_check():
     model = get_model()
     return {
         "status": "healthy",
+        "deploy_version": DEPLOY_VERSION,
         "model_status": "ready" if model is not None else "simulated_mode",
-        "model_file_exists": os.path.exists(MODEL_PATH)
+        "model_file_exists": os.path.exists(MODEL_PATH),
+        "model_error": get_model_error()
     }
 
 @app.post("/predict")

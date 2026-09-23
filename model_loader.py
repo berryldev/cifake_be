@@ -30,7 +30,7 @@ def get_model():
     if os.path.exists(MODEL_PATH):
         try:
             import tensorflow as tf
-            _model = tf.keras.models.load_model(MODEL_PATH)
+            _model = tf.keras.models.load_model(MODEL_PATH, compile=False)
             print(f"[INFO] Model berhasil dimuat dari: {MODEL_PATH}")
             return _model
         except Exception as e:
